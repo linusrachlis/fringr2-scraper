@@ -1,0 +1,17 @@
+{
+    "name": "linusrachlis/fringr2-scraper",
+    "type": "project",
+    "description": "Scraper for show info and performance times on the Toronto Fringe 2019 website. Used for linusrachlis/fringr2-fe",
+    "license": "CC-BY-NC-SA-4.0",
+    "authors": [
+        {
+            "name": "Linus Rachlis",
+            "email": "linus@rachlis.net"
+        }
+    ],
+    "require": {
+        "php": ">=7",
+        "symfony/dom-crawler": "^4.3",
+        "symfony/css-selector": "^4.3"
+    }
+}
