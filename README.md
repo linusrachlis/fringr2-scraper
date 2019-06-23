@@ -1,6 +1,6 @@
 # Toronto Fringe 2019 performance data scraper
 
-Scraper for show info and performance times on the Toronto Fringe 2019 website. Used for https://github.com/linusrachlis/fringr2-fe
+Scraper for show info and performance times on the [Toronto Fringe Theatre Festival 2019 website](https://fringetoronto.com/fringe/shows). Used for https://github.com/linusrachlis/fringr2-fe
 
 ## Running
 
