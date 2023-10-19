@@ -64,8 +64,13 @@ function scrape($show_url, $show_index) {
     $crawler = new Crawler($fetched_html);
 
     $title = trim($crawler->filter('.page-title')->text());
-    $runtime_text = $crawler->filter('.show-info')->first()->filter('.column.right dd')->text();
-    $runtime_minutes = preg_replace('/^(\d+).*$/', '$1', $runtime_text);
+    $runtime_text_container = $crawler->filter('.show-info')->first()->filter('.column.right dd');
+    if ($runtime_text_container->count() > 0) {
+        $runtime_text = $runtime_text_container->text();
+        $runtime_minutes = preg_replace('/^(\d+).*$/', '$1', $runtime_text);
+    } else {
+        $runtime_minutes = null; // Some shows have no runtime defined (e.g. they just go until "late")
+    }
 
     $location_address_node = $crawler->filter('address.venue-address');
 
@@ -79,6 +84,7 @@ function scrape($show_url, $show_index) {
     $flags = [
         '.warning-icon-assisted-hearing-devices' => 'assisted-hearing',
         '.warning-icon-audio-description' => 'audio-description',
+        '.warning-icon-closed-captioning' => 'closed-captioning',
         '.warning-icon-relaxed-performance' => 'relaxed',
         '.warning-icon-sign-language' => 'asl',
         '.warning-icon-tad-seating' => 'tad',
@@ -88,7 +94,7 @@ function scrape($show_url, $show_index) {
     $all_flags_selector = implode(',', array_keys($flags));
 
     $perfs = [];
-    $perf_counter = 0;
+    $perf_counter = 1;
 
     $crawler->filter('.performances table tbody tr')->each(
         function (Crawler $node) use (
@@ -119,14 +125,19 @@ function scrape($show_url, $show_index) {
 
             $time = preg_replace('/^.*?(\d+:\d+[ap]m).*?$/', '$1', $cells->eq(2)->text());
             $start_time = new DateTime("$date, $time");
-            $end_time = (new DateTime("$date, $time"))->add(new DateInterval("PT{$runtime_minutes}M"));
 
-            $perfs[] = [
+            $new_perf = [
                 'id' => $perf_counter++,
                 'flags' => $perf_flag_symbols,
                 'start' => $start_time->format('c'),
-                'end' => $end_time->format('c'),
             ];
+
+            if (isset($runtime_minutes)) {
+                $end_time = (new DateTime("$date, $time"))->add(new DateInterval("PT{$runtime_minutes}M"));
+                $new_perf['end'] = $end_time->format('c');
+            }
+
+            $perfs[] = $new_perf;
         }
     );
 
@@ -135,7 +146,7 @@ function scrape($show_url, $show_index) {
         'url' => $show_url,
         'venue' => trim($location_name),
         'address' => trim($location_address),
-        'id' => $show_index,
-        'perfs' => $perfs,
+        'id' => $show_index + 1,
+        'perfsData' => $perfs,
     ];
 }
