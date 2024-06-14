@@ -123,13 +123,12 @@ function scrape($show_url, $show_index) {
             $date = $cells->eq(1)->text();
 
             $perf_flag_symbols = [];
-            $cells->eq(3)->filter($all_flags_selector)->each(
+            $cells->eq(3)->children()->each(
                 function (Crawler $node) use (&$flags, &$perf_flag_symbols)
                 {
                     $lookup = '.' . $node->attr('class');
-                    if (array_key_exists($lookup, $flags)) {
-                        $perf_flag_symbols[] = $flags[$lookup];
-                    }
+                    assert(array_key_exists($lookup, $flags), "Unknown flag: $lookup");
+                    $perf_flag_symbols[] = $flags[$lookup];
                 }
             );
 
