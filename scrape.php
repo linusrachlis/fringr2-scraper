@@ -105,7 +105,9 @@ function scrape($show_url, $show_index) {
     $perfs = [];
     $perf_counter = 1;
 
-    $crawler->filter('.performances table tbody tr')->each(
+    $perf_nodes = $crawler->filter('.performances table tbody tr');
+    assert($perf_nodes->count() > 0, 'Expected at least one performance node');
+    $perf_nodes->each(
         function (Crawler $node) use (
             &$perfs,
             &$perf_counter,
@@ -114,6 +116,10 @@ function scrape($show_url, $show_index) {
             $all_flags_selector
         ) {
             $cells = $node->filter('td');
+            if ($cells->count() < 5) {
+                // Some rows have no cells like when a perf is cancelled
+                return;
+            }
             $date = $cells->eq(1)->text();
 
             $perf_flag_symbols = [];
