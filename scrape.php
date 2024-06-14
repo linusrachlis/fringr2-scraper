@@ -100,7 +100,6 @@ function scrape($show_url, $show_index) {
         '.warning-icon-touch-book' => 'touch-book',
         '.warning-icon-touch-tour' => 'touch-tour',
     ];
-    $all_flags_selector = implode(',', array_keys($flags));
 
     $perfs = [];
     $perf_counter = 1;
@@ -113,7 +112,6 @@ function scrape($show_url, $show_index) {
             &$perf_counter,
             $runtime_minutes,
             &$flags,
-            $all_flags_selector
         ) {
             $cells = $node->filter('td');
             if ($cells->count() < 5) {
