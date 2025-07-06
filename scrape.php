@@ -90,16 +90,6 @@ function scrape($show_url, $show_index) {
         $location_address = null;
     }
 
-    $flags = [
-        '.warning-icon-assisted-hearing-devices' => 'assisted-hearing',
-        '.warning-icon-audio-description' => 'audio-description',
-        '.warning-icon-closed-captioning' => 'closed-captioning',
-        '.warning-icon-relaxed-performance' => 'relaxed',
-        '.warning-icon-sign-language' => 'asl',
-        '.warning-icon-tad-seating' => 'tad',
-        '.warning-icon-touch-book' => 'touch-book',
-        '.warning-icon-touch-tour' => 'touch-tour',
-    ];
 
     $perfs = [];
     $perf_counter = 1;
@@ -120,20 +110,50 @@ function scrape($show_url, $show_index) {
             }
             $date = $cells->eq(1)->text();
 
+            // Build up the list of flags for this performance
             $perf_flag_symbols = [];
+
+            // Most flags are presented as icons in the 4th table cell.
             $cells->eq(3)->children()->each(
-                function (Crawler $node) use (&$flags, &$perf_flag_symbols)
+                function (Crawler $node) use (&$perf_flag_symbols)
                 {
-                    $lookup = '.' . $node->attr('class');
-                    assert(array_key_exists($lookup, $flags), "Unknown flag: $lookup");
+                    $flags = [
+                        'warning-icon-assisted-hearing-devices' => 'assisted-hearing',
+                        'warning-icon-audio-description' => 'audio-description',
+                        'warning-icon-closed-captioning' => 'closed-captioning',
+                        'warning-icon-relaxed-performance' => 'relaxed',
+                        'warning-icon-sign-language' => 'asl',
+                        'warning-icon-tad-seating' => 'tad',
+                        'warning-icon-touch-book' => 'touch-book',
+                        'warning-icon-touch-tour' => 'touch-tour',
+                    ];
+                    $lookup = $node->attr('class');
+                    assert(array_key_exists($lookup, $flags), "Unknown flag from 4th column: $lookup");
                     $perf_flag_symbols[] = $flags[$lookup];
                 }
             );
 
-            // Preview symbol is presented differently on Fringe site
-            if ($cells->eq(0)->filter('.icon-preview')->count() == 1) {
-                $perf_flag_symbols[] = 'preview';
-            }
+            // Some other icons are in the first table cell, and we want to
+            // make flags out of them, too.
+            $cells->eq(0)->children()->each(
+                function (Crawler $node) use (&$perf_flag_symbols)
+                {
+                    $flags = [
+                        'icon-preview' => 'preview',
+                        'icon-pwyc' => 'pwyc',
+                        'icon-discount' => 'daily-discount',
+                    ];
+                    $classes = explode(' ', $node->attr('class'));
+                    foreach ($classes as $lookup) {
+                        // Ignore 'icon' class
+                        if ($lookup == 'icon') continue;
+
+                        assert(array_key_exists($lookup, $flags), "Unknown flag from 1st column: $lookup");
+                        $perf_flag_symbols[] = $flags[$lookup];
+                        break;
+                    }
+                }
+            );
 
             $time = preg_replace('/^.*?(\d+:\d+[ap]m).*?$/', '$1', $cells->eq(2)->text());
             $start_time = new DateTime("$date, $time");
