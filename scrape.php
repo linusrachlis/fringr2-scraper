@@ -142,6 +142,7 @@ function scrape($show_url, $show_index) {
                         'icon-preview' => 'preview',
                         'icon-pwyc' => 'pwyc',
                         'icon-discount' => 'daily-discount',
+                        'icon-patronspick' => 'patrons-pick',
                     ];
                     $classes = explode(' ', $node->attr('class'));
                     foreach ($classes as $lookup) {
