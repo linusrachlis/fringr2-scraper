@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a83cfbdd5c7d54603190338ff4f19f9",
+    "content-hash": "cbea2053424e3fc9e1eb89fe8b41ce83",
     "packages": [
         {
             "name": "symfony/css-selector",
