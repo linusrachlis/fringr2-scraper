@@ -6,8 +6,6 @@ https://github.com/linusrachlis/fringr2-fe.
 
 ## Running
 
-Have PHP >=7.
-
 ```bash
 php scrape.php # Dumps everything to stdout (operational info and JSON output)
 php scrape.php out.json # Gives operation info to stdout and JSON output to a file
